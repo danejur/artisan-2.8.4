@@ -12,7 +12,7 @@ environment:
 
   matrix:
   - job_name: linux
-    appveyor_build_worker_image: Ubuntu2204
+    appveyor_build_worker_image: Ubuntu2004
 
 
 # Generic build number, later set to commit hash by init

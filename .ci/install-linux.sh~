@@ -2,7 +2,7 @@
 
 set -ex
 sudo apt-get update -y -q
-sudo apt-get install -y -q ruby-dev build-essential p7zip-full rpm gdb libudev-dev qt5-default
+sudo apt-get install -y -q ruby-dev build-essential p7zip-full rpm gdb libudev-dev
 sudo apt-get install -y -q fakeroot
 
 # add libs not installed by default on Qt5.15/Qt6 any longer
