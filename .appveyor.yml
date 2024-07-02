@@ -28,7 +28,7 @@ init:
 
 branches:
   only:
-    - master
+    - test
 
 stack:
   python ${PYTHON_V}
