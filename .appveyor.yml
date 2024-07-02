@@ -91,7 +91,7 @@ for:
     - path: 'src\artisan-*.zip'
 
   deploy_script:
-    - cmd: bash curl -i -F files[]=@artisan-*.zip https://uguu.jur.as/upload.php
+    - cmd: bash ../.ci/upload.sh artisan-*.zip
 
 -
   matrix:
