@@ -13,7 +13,24 @@ if [ $# -eq 0 ]; then
     exit 0
 fi
 
-for file in "$@"
-do
-    curl -i -F files[]=@file https://uguu.jur.as/upload.php
+
+# Upload each file
+for FILE in "$@" ; do
+    FULLNAME="${FILE}"
+    BASENAME="$(basename "${FILE}")"
+    curl -H "Content-Type: application/octet-stream" \
+         --data-binary "@$FULLNAME" \
+         "https://uguu.jur.as/upload.php"
+    echo ""
 done
+
+$shatool "$@"
+
+if [ "$APPVEYOR_REPO_COMMIT" != "$tag_sha" ] ; then
+    echo "Publish the release..."
+
+    release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
+        --data '{"draft": false}' "$release_url")
+
+    echo "$release_infos"
+fi
