@@ -11,6 +11,10 @@ environment:
 #  PYUPGRADE_V: 3.11.3
 
   matrix:
+  - job_name: windows_legacy
+    appveyor_build_worker_image: Visual Studio 2019
+  - job_name: windows
+    appveyor_build_worker_image: Visual Studio 2022
   - job_name: linux
     appveyor_build_worker_image: Ubuntu2004
 
@@ -34,6 +38,115 @@ stack:
   python ${PYTHON_V}
 
 for:
+-
+  matrix:
+    only:
+      - job_name: windows_legacy
+    fast_finish: false
+
+  environment:
+    PYTHON_PATH: "C:\\Python38-x64"
+    QT_PATH: "c:\\qt\\5.15\\msvc2019_64"
+    PYUIC: "pyuic5.exe"
+    BUILD_PYINSTALLER: "True"
+    ARTISAN_LEGACY: "True"
+    VC_REDIST: "https://aka.ms/vs/16/release/vc_redist.x64.exe"
+
+  install:
+    - cmd: echo Windows Legacy Install
+
+    # pull library versions from requirments file
+    - ps: $env:PYINSTALLER_VER = Select-String -Path ./src/requirements-win-legacy.txt 'pyinstaller==([\d\.]*)' -List | ForEach-Object {$_.Matches.Groups[1].Value}
+    - ps: $env:LIBUSB_VER = Select-String -Path ./src/requirements-win-legacy.txt 'libusb==([\d\.]*)' -List | ForEach-Object {$_.Matches.Groups[1].Value}
+
+    # update path env var
+    - cmd: set PATH=%PYTHON_PATH%;%PYTHON_PATH%\Scripts;%PATH%
+
+    # run the install script
+    - cmd: .ci\install-win.bat LEGACY
+
+  build_script:
+    - cmd: echo Windows Legacy Build
+    - cmd: cd src
+
+    #update the copyright year used by pyinstaller to set exe properties for Windows
+    - ps: $YEAR=(Get-Date).year
+    - ps: gc version-metadata.yml | %{ $_ -replace "yyyy", "$YEAR" } | out-file newfile -encoding ascii
+    - ps: move -force newfile version-metadata.yml
+
+    # update the __revision__ field with the left seven of the GIT commit hash
+    - ps: $GIT_VERSION=git rev-parse --verify --short HEAD
+    - ps: gc artisanlib/__init__.py | %{ $_ -replace "__revision__ = '0'", "__revision__ = '$GIT_VERSION'" } | out-file newfile -encoding ascii
+    - ps: move -force newfile artisanlib/__init__.py
+
+    # run the build script
+    - cmd: build-win3-pi.bat LEGACY
+
+#  test_script:
+#    - cmd: python -m unittest discover
+
+  artifacts:
+    - path: 'src\artisan-*.zip'
+
+  deploy_script:
+    - cmd: bash ../.ci/upload.sh artisan-*.zip
+
+-
+  matrix:
+    only:
+      - job_name: windows
+    fast_finish: false
+
+  environment:
+    QT_PATH: "C:\\qt\\6.4\\msvc2022_64"
+    PYUIC: "pyuic6.exe"
+    BUILD_PYINSTALLER: "True"
+    ARTISAN_LEGACY: "False"
+    VC_REDIST: "https://aka.ms/vs/17/release/vc_redist.x64.exe"  #redistributable for VS 2015-2022
+
+  install:
+    - cmd: echo Windows Install
+
+    # derive the python path from the version number
+    - ps: $env:PYTHON_PATH = "C:\\Python$($env:PYTHON_V -replace '\.','')-x64"
+    - ps: Write-Host $env:PYTHON_PATH
+
+    # pull library versions from requirments file
+    - ps: $env:PYINSTALLER_VER = Select-String -Path ./src/requirements-win.txt 'pyinstaller==([\d\.]*)' -List | ForEach-Object {$_.Matches.Groups[1].Value}
+    - ps: $env:LIBUSB_VER = Select-String -Path ./src/requirements-win.txt 'libusb==([\d\.]*)' -List | ForEach-Object {$_.Matches.Groups[1].Value}
+
+    # update path env var
+    - cmd: set PATH=%PYTHON_PATH%;%PYTHON_PATH%\Scripts;%PATH%
+
+    # run the install script
+    - cmd: .ci\install-win.bat
+
+  build_script:
+    - cmd: echo Windows Build
+    - cmd: cd src
+
+    #update the copyright year used by pyinstaller to set exe properties for Windows
+    - ps: $YEAR=(Get-Date).year
+    - ps: gc version-metadata.yml | %{ $_ -replace "yyyy", "$YEAR" } | out-file newfile -encoding ascii
+    - ps: move -force newfile version-metadata.yml
+
+    # update the __revision__ field with the left seven of the GIT commit hash
+    - ps: $GIT_VERSION=git rev-parse --verify --short HEAD
+    - ps: gc artisanlib/__init__.py | %{ $_ -replace "__revision__ = '0'", "__revision__ = '$GIT_VERSION'" } | out-file newfile -encoding ascii
+    - ps: move -force newfile artisanlib/__init__.py
+
+    # run the build script
+    - cmd: build-win3-pi.bat
+
+#  test_script:
+#    - cmd: python -m unittest discover
+
+  artifacts:
+    - path: 'src\artisan-*.zip'
+
+  deploy_script:
+    - cmd: bash ../.ci/upload.sh artisan-*.zip
+
 -
   matrix:
     only:
@@ -75,4 +188,3 @@ for:
     - path: 'src/artisan-*.deb'
     - path: 'src/artisan-*.rpm'
     - path: 'src/artisan-*.AppImage'
-
