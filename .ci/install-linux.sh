@@ -10,6 +10,7 @@ sudo apt-get install -y -q libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 libxcb-i
 
 sudo chmod 777 /var/lib/gems/2.7.0
 gem install public_suffix -v 5.1.1
+gem install dotenv -v 2.8.1
 gem install fpm -v 1.12.0 # Linux build fails using 1.13.0
 pip install --upgrade pip
 pip install -r src/requirements.txt
