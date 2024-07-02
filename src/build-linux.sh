@@ -105,11 +105,11 @@ mkdir dist/Icons
 find includes/Icons -name '.*.aset' -exec rm -r {} \;
 cp -R includes/Icons/* dist/Icons
 
-mkdir dist/yoctopuce
-mkdir dist/yoctopuce/cdll
-cp $PYTHON_PATH/yoctopuce/cdll/*64.so dist/yoctopuce/cdll
+#mkdir dist/yoctopuce
+#mkdir dist/yoctopuce/cdll
+#cp $PYTHON_PATH/yoctopuce/cdll/*64.so dist/yoctopuce/cdll
 
-cp /usr/lib/libsnap7.so dist
+#cp /usr/lib/libsnap7.so dist
 
 cp README.txt dist
 cp ../LICENSE dist/LICENSE.txt
