@@ -11,12 +11,6 @@ environment:
 #  PYUPGRADE_V: 3.11.3
 
   matrix:
-  - job_name: windows_legacy
-    appveyor_build_worker_image: Visual Studio 2019
-  - job_name: windows
-    appveyor_build_worker_image: Visual Studio 2022
-  - job_name: macos
-    appveyor_build_worker_image: macos-bigsur
   - job_name: linux
     appveyor_build_worker_image: Ubuntu2004
 
@@ -234,12 +228,8 @@ for:
 #  test_script:
 #    - QT_QPA_PLATFORM=offscreen python -m unittest discover -s src
 
-#  artifacts:
-#    - path: 'src/artisan-*.deb'
-#    - path: 'src/artisan-*.rpm'
-#    - path: 'src/artisan-*.AppImage'
+  artifacts:
+    - path: 'src/artisan-*.deb'
+    - path: 'src/artisan-*.rpm'
+    - path: 'src/artisan-*.AppImage'
 
-  deploy_script:
-    - ../.ci/upload.sh artisan-*.deb
-    - ../.ci/upload.sh artisan-*.rpm
-    - ../.ci/upload.sh artisan-*.AppImage
